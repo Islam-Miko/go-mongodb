@@ -1,4 +1,4 @@
-#REST API with Golang and MongoDB
+# REST API with Golang and MongoDB
 
 This is a repository for a REST API written in Go language that uses MongoDB as the database. The API includes base authentication endpoints.
 
