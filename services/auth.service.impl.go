@@ -19,7 +19,7 @@ type AuthServiceImpl struct {
 }
 
 
-func NewAuthService(collection *mongo.Collection, ctx context.Context) AuthService {
+func NewAuthServiceImpl(collection *mongo.Collection, ctx context.Context) AuthService {
 	return &AuthServiceImpl{collection, ctx}
 }
 
