@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/Islam-Miko/go-mongodb/config"
+	"github.com/Islam-Miko/go-mongodb/services"
+	"github.com/Islam-Miko/go-mongodb/controllers"
+	"github.com/Islam-Miko/go-mongodb/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,6 +21,15 @@ var (
 	ctx context.Context
 	mongoclient *mongo.Client
 	redisclient *redis.Client
+
+	userService services.UserService
+	UserController controllers.UserController
+	UserRouteController routes.UserRouteController
+
+	authCollection *mongo.Collection
+	authService services.AuthService
+	AuthController controllers.AuthController
+	AuthRouteController routes.AuthRouteController
 )
 
 func init() {
@@ -55,6 +67,15 @@ func init() {
 
 	fmt.Println("Redis client connected...")
 
+	authCollection = mongoclient.Database("golang_mongodb").Collection("users")
+	userService = services.NewUserServiceImpl(authCollection, ctx)
+	authService = services.NewAuthServiceImpl(authCollection, ctx)
+
+	AuthController = controllers.NewAuthController(authService, userService)
+	AuthRouteController = routes.NewAuthRouteController(AuthController)
+	
+	UserController = controllers.NewUserController(userService)
+	UserRouteController = routes.NewRouteUserController(UserController)
 	server = gin.Default()
 }
 
@@ -79,5 +100,7 @@ func main(){
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
 	})
 
+	AuthRouteController.AuthRoute(router, userService)
+	UserRouteController.UserRoute(router, userService)
 	log.Fatal(server.Run(":" + config.Port))
 }
